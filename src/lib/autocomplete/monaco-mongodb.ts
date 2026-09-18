@@ -1,5 +1,6 @@
 import type { Monaco } from '@monaco-editor/react';
 import { MongoCollection } from '../../types/mongo';
+import { formatMongoCommand } from '../formatter/mongo-formatter';
 
 export const MONGO_METHODS = [
   { label: 'find', doc: 'Selecciona documentos en una colección o vista y devuelve un cursor.' },
@@ -75,6 +76,66 @@ export function registerMongoLanguage(monaco: Monaco) {
   registered = true;
 
   monaco.languages.register({ id: 'mongodb' });
+
+  monaco.languages.setLanguageConfiguration('mongodb', {
+    comments: {
+      lineComment: '//',
+      blockComment: ['/*', '*/'],
+    },
+    brackets: [
+      ['{', '}'],
+      ['[', ']'],
+      ['(', ')'],
+    ],
+    autoClosingPairs: [
+      { open: '{', close: '}' },
+      { open: '[', close: ']' },
+      { open: '(', close: ')' },
+      { open: '"', close: '"', notIn: ['string'] },
+      { open: "'", close: "'", notIn: ['string', 'comment'] },
+      { open: '`', close: '`', notIn: ['string', 'comment'] },
+    ],
+    surroundingPairs: [
+      { open: '{', close: '}' },
+      { open: '[', close: ']' },
+      { open: '(', close: ')' },
+      { open: '"', close: '"' },
+      { open: "'", close: "'" },
+      { open: '`', close: '`' },
+    ],
+    indentationRules: {
+      increaseIndentPattern: /^.*(\{[^}]*|\[[^\]]*|\([^)]*)\s*$/,
+      decreaseIndentPattern: /^(.*\*\/)?\s*[\}\]\)].*$/,
+    },
+    onEnterRules: [
+      {
+        beforeText: /^\s*.*[\{\(\[]\s*$/,
+        afterText: /^\s*[\}\)\]].*$/,
+        action: { indentAction: monaco.languages.IndentAction.IndentOutdent },
+      },
+      {
+        beforeText: /^.*[\{\(\[]\s*$/,
+        action: { indentAction: monaco.languages.IndentAction.Indent },
+      },
+      {
+        beforeText: /^\s*([a-zA-Z_$][\w$]*|"[^"]*"|'[^']*')\s*:\s*[\{\(\[]\s*$/,
+        action: { indentAction: monaco.languages.IndentAction.Indent },
+      },
+    ],
+  });
+
+  monaco.languages.registerDocumentFormattingEditProvider('mongodb', {
+    provideDocumentFormattingEdits(model: any) {
+      const text = model.getValue();
+      const formatted = formatMongoCommand(text);
+      return [
+        {
+          range: model.getFullModelRange(),
+          text: formatted,
+        },
+      ];
+    },
+  });
 
   monaco.languages.setMonarchTokensProvider('mongodb', {
     keywords: ['find', 'findOne', 'insertOne', 'insertMany', 'updateOne', 'updateMany', 'deleteOne', 'deleteMany', 'aggregate', 'sort', 'limit', 'skip', 'project', 'countDocuments', 'distinct'],

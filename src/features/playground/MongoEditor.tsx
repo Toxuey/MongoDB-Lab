@@ -1,12 +1,13 @@
 import React, { useRef, useEffect } from 'react';
 import Editor, { OnMount, BeforeMount } from '@monaco-editor/react';
-import { Play, RotateCcw, Loader2 } from 'lucide-react';
+import { Play, RotateCcw, Loader2, Sparkles } from 'lucide-react';
 import { useEditorStore } from '../../store/editorStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useDbStore } from '../../store/dbStore';
 import { useHistoryStore } from '../../store/historyStore';
 import { registerMongoLanguage } from '../../lib/autocomplete/monaco-mongodb';
 import { createMongoCompletionProvider } from '../../lib/autocomplete/completion-provider';
+import { formatMongoCommand } from '../../lib/formatter/mongo-formatter';
 
 interface MongoEditorProps {
   onRunQuery?: () => void;
@@ -18,6 +19,13 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
   const { database, selectedCollection, runQuery } = useDbStore();
   const { addHistoryItem } = useHistoryStore();
   const monacoRef = useRef<any>(null);
+  const editorRef = useRef<any>(null);
+
+  const handleFormat = () => {
+    if (!code.trim()) return;
+    const formatted = formatMongoCommand(code);
+    setCode(formatted);
+  };
 
   const handleExecute = async () => {
     if (!code.trim() || isRunning) return;
@@ -53,6 +61,7 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     monacoRef.current = monaco;
+    editorRef.current = editor;
     registerMongoLanguage(monaco);
 
     // Explicitly apply the dark theme immediately
@@ -91,14 +100,25 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
 
         <div className="flex items-center gap-1.5">
           {code.trim() && (
-            <button
-              onClick={() => setCode('')}
-              className="p-1 px-2 rounded hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 transition-colors text-xs flex items-center gap-1 cursor-pointer active:scale-95"
-              title="Limpiar consola de comandos"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span className="text-[10px] font-mono">Limpiar</span>
-            </button>
+            <>
+              <button
+                onClick={handleFormat}
+                className="p-1 px-2 rounded hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 transition-colors text-xs flex items-center gap-1 cursor-pointer active:scale-95"
+                title="Formatear código (Shift+Alt+F)"
+              >
+                <Sparkles className="w-3 h-3 text-[#00ED64]" />
+                <span className="text-[10px] font-mono">Formatear</span>
+              </button>
+
+              <button
+                onClick={() => setCode('')}
+                className="p-1 px-2 rounded hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 transition-colors text-xs flex items-center gap-1 cursor-pointer active:scale-95"
+                title="Limpiar consola de comandos"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span className="text-[10px] font-mono">Limpiar</span>
+              </button>
+            </>
           )}
 
           <button
@@ -149,6 +169,12 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
             scrollBeyondLastLine: false,
             automaticLayout: true,
             tabSize: 2,
+            autoIndent: 'full',
+            formatOnPaste: true,
+            formatOnType: true,
+            autoClosingBrackets: 'always',
+            autoClosingQuotes: 'always',
+            bracketPairColorization: { enabled: true },
             wordWrap: 'on',
             suggestOnTriggerCharacters: true,
             quickSuggestions: true,
