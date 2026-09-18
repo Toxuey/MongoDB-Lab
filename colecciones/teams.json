@@ -1,0 +1,194 @@
+[
+  {
+    "id": 1,
+    "abbreviation": "arg",
+    "country": "Argentina",
+    "confederation": "CONMEBOL"
+  },
+  {
+    "id": 2,
+    "abbreviation": "aus",
+    "country": "Australia",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 3,
+    "abbreviation": "bel",
+    "country": "Belgium",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 4,
+    "abbreviation": "bra",
+    "country": "Brazil",
+    "confederation": "CONMEBOL"
+  },
+  {
+    "id": 5,
+    "abbreviation": "col",
+    "country": "Colombia",
+    "confederation": "CONMEBOL"
+  },
+  {
+    "id": 6,
+    "abbreviation": "crc",
+    "country": "Costa Rica",
+    "confederation": "CONCACAF"
+  },
+  {
+    "id": 7,
+    "abbreviation": "cro",
+    "country": "Croatia",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 8,
+    "abbreviation": "den",
+    "country": "Denmark",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 9,
+    "abbreviation": "egy",
+    "country": "Egypt",
+    "confederation": "CAF"
+  },
+  {
+    "id": 10,
+    "abbreviation": "eng",
+    "country": "England",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 11,
+    "abbreviation": "fra",
+    "country": "France",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 12,
+    "abbreviation": "ger",
+    "country": "Germany",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 13,
+    "abbreviation": "isl",
+    "country": "Iceland",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 14,
+    "abbreviation": "irn",
+    "country": "IR Iran",
+    "confederation": "AFC"
+  },
+  {
+    "id": 15,
+    "abbreviation": "jpn",
+    "country": "Japan",
+    "confederation": "AFC"
+  },
+  {
+    "id": 16,
+    "abbreviation": "kor",
+    "country": "Korea Republic",
+    "confederation": "AFC"
+  },
+  {
+    "id": 17,
+    "abbreviation": "mex",
+    "country": "Mexico",
+    "confederation": "CONCACAF"
+  },
+  {
+    "id": 18,
+    "abbreviation": "mar",
+    "country": "Morocco",
+    "confederation": "CAF"
+  },
+  {
+    "id": 19,
+    "abbreviation": "nga",
+    "country": "Nigeria",
+    "confederation": "CAF"
+  },
+  {
+    "id": 20,
+    "abbreviation": "pan",
+    "country": "Panama",
+    "confederation": "CONCACAF"
+  },
+  {
+    "id": 21,
+    "abbreviation": "per",
+    "country": "Peru",
+    "confederation": "CONMEBOL"
+  },
+  {
+    "id": 22,
+    "abbreviation": "pol",
+    "country": "Poland",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 23,
+    "abbreviation": "por",
+    "country": "Portugal",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 24,
+    "abbreviation": "rus",
+    "country": "Russia",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 25,
+    "abbreviation": "ksa",
+    "country": "Saudi Arabia",
+    "confederation": "AFC"
+  },
+  {
+    "id": 26,
+    "abbreviation": "sen",
+    "country": "Senegal",
+    "confederation": "CAF"
+  },
+  {
+    "id": 27,
+    "abbreviation": "srb",
+    "country": "Serbia",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 28,
+    "abbreviation": "esp",
+    "country": "Spain",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 29,
+    "abbreviation": "sui",
+    "country": "Sweden",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 30,
+    "abbreviation": "swe",
+    "country": "Switzerland",
+    "confederation": "UEFA"
+  },
+  {
+    "id": 31,
+    "abbreviation": "tun",
+    "country": "Tunisia",
+    "confederation": "CAF"
+  },
+  {
+    "id": 32,
+    "abbreviation": "uru",
+    "country": "Uruguay",
+    "confederation": "CONMEBOL"
+  }
+]

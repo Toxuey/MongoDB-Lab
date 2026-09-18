@@ -23,11 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Archivos de datos / Datasets
-Match.json
-match.json
-Players.json
-players.json
-Teams.json
-teams.json
+# Archivos temporales de datos
 *.data.json
+
