@@ -82,9 +82,21 @@ const LEGACY_ID_MAP: Record<string, string> = {
   '660a30010000000000000010': '662e0973eb6a4b69c12a52de',
 };
 
-export async function loadDatabase(name = 'mi_base_datos'): Promise<MongoDatabase> {
+export async function loadDatabase(name = 'database'): Promise<MongoDatabase> {
   const db = await getDb();
-  const existing = await db.get('databases', name);
+  let existing = await db.get('databases', name);
+
+  // Si no existe 'database', migrar si existía bajo el nombre previo 'mi_base_datos'
+  if (!existing) {
+    const legacy = await db.get('databases', 'mi_base_datos');
+    if (legacy) {
+      legacy.name = 'database';
+      await db.put('databases', legacy);
+      await db.delete('databases', 'mi_base_datos');
+      existing = legacy;
+    }
+  }
+
   const firstUser = existing?.collections?.usuarios?.documents?.[0];
   if (
     existing &&
@@ -127,7 +139,7 @@ export async function saveDatabase(database: MongoDatabase): Promise<void> {
   await db.put('databases', database);
 }
 
-export async function resetDatabaseToSeed(_name = 'mi_base_datos'): Promise<MongoDatabase> {
+export async function resetDatabaseToSeed(_name = 'database'): Promise<MongoDatabase> {
   const db = await getDb();
   const initial = getInitialDatabase();
   await db.put('databases', initial);

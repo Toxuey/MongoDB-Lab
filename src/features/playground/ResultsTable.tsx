@@ -19,10 +19,16 @@ import { confirmModal, alertModal } from '../../store/modalStore';
 import { generateObjectId } from '../../utils/objectId';
 
 interface ResultsTableProps {
-  data: MongoDocument[];
+  data: any[];
+  isReadOnly?: boolean;
+  operation?: string;
 }
 
-export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
+export const ResultsTable: React.FC<ResultsTableProps> = ({
+  data,
+  isReadOnly = false,
+  operation,
+}) => {
   const {
     selectedCollection,
     database,
@@ -68,24 +74,41 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
     setCurrentPage(0);
   }, [selectedCollection]);
 
+  // Detect if data is an array of primitive values (strings, numbers, etc.) like from getCollectionNames or distinct
+  const isPrimitiveArray = useMemo(() => {
+    if (!Array.isArray(data) || data.length === 0) return false;
+    return data.some((item) => item === null || typeof item !== 'object');
+  }, [data]);
+
   // Extract all columns
   const allColumns = useMemo(() => {
+    if (isPrimitiveArray) {
+      if (operation === 'getCollectionNames') return ['colección'];
+      if (operation === 'distinct') return ['valor'];
+      return ['resultado'];
+    }
+
     const schemaCols = currentSchema?.columns?.map((c) => c.name) || [];
 
     if (!data || data.length === 0) {
-      if (schemaCols.length > 0) {
-        return ['_id', ...schemaCols.filter((c) => c !== '_id')];
+      if (!isReadOnly) {
+        if (schemaCols.length > 0) {
+          return ['_id', ...schemaCols.filter((c) => c !== '_id')];
+        }
+        // Default fallback columns per collection if empty
+        if (selectedCollection === 'usuarios') return ['_id', 'nombre', 'email', 'edad', 'ciudad', 'activo'];
+        if (selectedCollection === 'peliculas') return ['_id', 'titulo', 'director', 'anio', 'genero', 'calificacion', 'disponible'];
+        if (selectedCollection === 'productos') return ['_id', 'nombre', 'categoria', 'precio', 'stock', 'disponible'];
+        return ['_id', 'nombre'];
       }
-      // Default fallback columns per collection if empty
-      if (selectedCollection === 'usuarios') return ['_id', 'nombre', 'email', 'edad', 'ciudad', 'activo'];
-      if (selectedCollection === 'peliculas') return ['_id', 'titulo', 'director', 'anio', 'genero', 'calificacion', 'disponible'];
-      if (selectedCollection === 'productos') return ['_id', 'nombre', 'categoria', 'precio', 'stock', 'disponible'];
-      return ['_id', 'nombre'];
+      return [];
     }
 
     const keys = new Set<string>();
-    // Pre-insert schema columns to maintain configured order
-    schemaCols.forEach((k) => keys.add(k));
+    // Pre-insert schema columns only if we are managing collection directly
+    if (!isReadOnly) {
+      schemaCols.forEach((k) => keys.add(k));
+    }
 
     data.slice(0, 50).forEach((item) => {
       if (item && typeof item === 'object') {
@@ -98,11 +121,11 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
     if (idIdx > 0) {
       list.splice(idIdx, 1);
       list.unshift('_id');
-    } else if (idIdx === -1) {
+    } else if (idIdx === -1 && !isReadOnly) {
       list.unshift('_id');
     }
     return list;
-  }, [data, selectedCollection, currentSchema]);
+  }, [data, isPrimitiveArray, operation, isReadOnly, selectedCollection, currentSchema]);
 
   // Filter rows by quick search
   const filteredData = useMemo(() => {
@@ -111,6 +134,10 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
     const term = filterText.toLowerCase();
 
     return data.filter((doc) => {
+      if (isPrimitiveArray) {
+        return String(doc).toLowerCase().includes(term);
+      }
+      if (!doc || typeof doc !== 'object') return false;
       return Object.values(doc).some((val) => {
         if (val === null || val === undefined) return false;
         if (typeof val === 'object') {
@@ -119,21 +146,21 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
         return String(val).toLowerCase().includes(term);
       });
     });
-  }, [data, filterText]);
+  }, [data, filterText, isPrimitiveArray]);
 
   // Sort rows
   const sortedData = useMemo(() => {
     if (!sortCol) return filteredData;
     const sorted = [...filteredData].sort((a, b) => {
-      const valA = a[sortCol];
-      const valB = b[sortCol];
+      const valA = isPrimitiveArray ? a : a?.[sortCol];
+      const valB = isPrimitiveArray ? b : b?.[sortCol];
       if (valA === valB) return 0;
       if (valA === undefined || valA === null) return sortAsc ? 1 : -1;
       if (valB === undefined || valB === null) return sortAsc ? -1 : 1;
       return valA < valB ? (sortAsc ? -1 : 1) : sortAsc ? 1 : -1;
     });
     return sorted;
-  }, [filteredData, sortCol, sortAsc]);
+  }, [filteredData, sortCol, sortAsc, isPrimitiveArray]);
 
   const totalPages = Math.ceil(sortedData.length / pageSize) || 1;
   const pageData = sortedData.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
@@ -370,6 +397,14 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
   const renderCell = (val: any, col?: string) => {
     if (val === null) return <span className="text-neutral-600">null</span>;
     if (val === undefined) return <span className="text-neutral-700">-</span>;
+    if (col === 'colección') {
+      return (
+        <div className="flex items-center gap-1.5 font-mono">
+          <Database className="w-3.5 h-3.5 text-[#00ED64] shrink-0" />
+          <span className="text-neutral-200 font-semibold">{String(val)}</span>
+        </div>
+      );
+    }
     if (col === '_id') {
       return (
         <span className="font-mono text-neutral-400 text-xs block select-all" title={String(val)}>
@@ -415,63 +450,65 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                 setFilterText(e.target.value);
                 setCurrentPage(0);
               }}
-              placeholder={`Buscar en ${selectedCollection}...`}
+              placeholder={isReadOnly ? 'Buscar en resultados...' : `Buscar en ${selectedCollection}...`}
               className="w-full bg-transparent text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none font-mono"
             />
           </div>
 
-          {/* Supabase-style "Insert row" action buttons in the table toolbar */}
-          {isInserting ? (
-            <div className="flex items-center gap-1.5 animate-fadeIn shrink-0">
-              <button
-                type="button"
-                onClick={handleSaveNewRow}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded bg-[#00ED64] hover:bg-[#00ED64]/90 text-neutral-950 font-bold text-xs shadow transition-all cursor-pointer"
-                title="Guardar fila en la colección (Enter)"
-              >
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
-                <span className="hidden sm:inline">Guardar fila</span>
-                <span className="sm:hidden">Guardar</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsInserting(false)}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs border border-neutral-700 transition-colors cursor-pointer"
-                title="Cancelar (Escape)"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Cancelar</span>
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              <button
-                onClick={handleStartInsert}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs font-mono text-neutral-300 hover:text-neutral-100 transition-colors cursor-pointer shrink-0"
-                title="Agregar una nueva fila a la colección (estilo Supabase)"
-              >
-                <Plus className="w-3.5 h-3.5 text-[#00ED64] shrink-0" />
-                <span className="hidden sm:inline">Insertar fila</span>
-                <span className="sm:hidden text-[11px]">Insertar</span>
-              </button>
+          {/* Supabase-style "Insert row" action buttons in the table toolbar (only when managing collection directly) */}
+          {!isReadOnly && (
+            isInserting ? (
+              <div className="flex items-center gap-1.5 animate-fadeIn shrink-0">
+                <button
+                  type="button"
+                  onClick={handleSaveNewRow}
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded bg-[#00ED64] hover:bg-[#00ED64]/90 text-neutral-950 font-bold text-xs shadow transition-all cursor-pointer"
+                  title="Guardar fila en la colección (Enter)"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span className="hidden sm:inline">Guardar fila</span>
+                  <span className="sm:hidden">Guardar</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsInserting(false)}
+                  className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs border border-neutral-700 transition-colors cursor-pointer"
+                  title="Cancelar (Escape)"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Cancelar</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <button
+                  onClick={handleStartInsert}
+                  className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs font-mono text-neutral-300 hover:text-neutral-100 transition-colors cursor-pointer shrink-0"
+                  title="Agregar una nueva fila a la colección (estilo Supabase)"
+                >
+                  <Plus className="w-3.5 h-3.5 text-[#00ED64] shrink-0" />
+                  <span className="hidden sm:inline">Insertar fila</span>
+                  <span className="sm:hidden text-[11px]">Insertar</span>
+                </button>
 
-              <input
-                ref={uploadFileInputRef}
-                type="file"
-                accept=".json,application/json"
-                onChange={handleUploadJsonFile}
-                className="hidden"
-              />
-              <button
-                onClick={() => uploadFileInputRef.current?.click()}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs font-mono text-neutral-300 hover:text-neutral-100 transition-colors cursor-pointer shrink-0"
-                title="Subir archivo .json directamente a esta colección"
-              >
-                <Upload className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                <span className="hidden sm:inline">Subir JSON</span>
-                <span className="sm:hidden text-[11px]">Subir</span>
-              </button>
-            </div>
+                <input
+                  ref={uploadFileInputRef}
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={handleUploadJsonFile}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => uploadFileInputRef.current?.click()}
+                  className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs font-mono text-neutral-300 hover:text-neutral-100 transition-colors cursor-pointer shrink-0"
+                  title="Subir archivo .json directamente a esta colección"
+                >
+                  <Upload className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <span className="hidden sm:inline">Subir JSON</span>
+                  <span className="sm:hidden text-[11px]">Subir</span>
+                </button>
+              </div>
+            )
           )}
         </div>
 
@@ -632,28 +669,34 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
             {/* Existing Rows */}
             {pageData.map((doc, rIdx) => {
               const rowNum = currentPage * pageSize + rIdx + 1;
+              const rowKey = isPrimitiveArray ? `prim-${rIdx}-${String(doc)}` : doc?._id || `row-${rIdx}`;
               return (
-                <tr key={doc._id || rIdx} className="group hover:bg-neutral-900/60 transition-colors">
+                <tr key={rowKey} className="group hover:bg-neutral-900/60 transition-colors">
                   <td className="px-2 py-1.5 text-center border-r border-neutral-800/40 relative">
-                    <span className="group-hover:hidden text-neutral-600 text-[10px]">{rowNum}</span>
-                    <button
-                      onClick={() => handleDeleteRow(doc._id)}
-                      className="hidden group-hover:inline-flex items-center justify-center p-0.5 rounded hover:bg-neutral-800 text-neutral-500 hover:text-red-400 transition-colors"
-                      title="Eliminar fila"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                    <span className={!isReadOnly ? 'group-hover:hidden text-neutral-600 text-[10px]' : 'text-neutral-600 text-[10px]'}>
+                      {rowNum}
+                    </span>
+                    {!isReadOnly && (
+                      <button
+                        onClick={() => handleDeleteRow(doc?._id)}
+                        className="hidden group-hover:inline-flex items-center justify-center p-0.5 rounded hover:bg-neutral-800 text-neutral-500 hover:text-red-400 transition-colors cursor-pointer"
+                        title="Eliminar fila"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
                   </td>
                   {allColumns.map((col) => {
-                    const isCellEditing = editingCell?.id === doc._id && editingCell?.col === col;
+                    const cellVal = isPrimitiveArray ? doc : doc?.[col];
+                    const isCellEditing = !isReadOnly && editingCell?.id === doc?._id && editingCell?.col === col;
                     return (
                       <td
                         key={col}
-                        onDoubleClick={() => handleStartEditCell(doc._id, col, doc[col])}
+                        onDoubleClick={() => !isReadOnly && handleStartEditCell(doc?._id, col, cellVal)}
                         className={`px-3 py-1.5 border-r border-neutral-800/40 last:border-r-0 whitespace-nowrap text-neutral-300 relative group/cell ${
-                          col !== '_id' ? 'cursor-text' : ''
+                          !isReadOnly && col !== '_id' ? 'cursor-text' : ''
                         }`}
-                        title={col !== '_id' ? 'Doble clic para editar' : undefined}
+                        title={!isReadOnly && col !== '_id' ? 'Doble clic para editar' : undefined}
                       >
                         {isCellEditing ? (
                           <div className="flex items-center gap-1">
@@ -671,10 +714,10 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                           </div>
                         ) : (
                           <div className="flex items-center justify-between gap-2">
-                            <span>{renderCell(doc[col], col)}</span>
-                            {col !== '_id' && (
+                            <span>{renderCell(cellVal, col)}</span>
+                            {!isReadOnly && col !== '_id' && (
                               <button
-                                onClick={() => handleStartEditCell(doc._id, col, doc[col])}
+                                onClick={() => handleStartEditCell(doc?._id, col, cellVal)}
                                 className="opacity-0 group-hover/cell:opacity-100 text-neutral-600 hover:text-neutral-300 p-0.5 transition-opacity"
                                 title="Editar celda"
                               >
@@ -693,10 +736,10 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
         </table>
 
         {/* Empty State or "+ Insertar fila" button at the bottom of the table (Supabase/Airtable style) */}
-        {!isInserting && (
+        {!isInserting && !isReadOnly && (
           <button
             onClick={handleStartInsert}
-            className="w-full py-2 px-4 flex items-center justify-start gap-2 text-xs font-mono text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/40 border-b border-neutral-800/40 transition-colors"
+            className="w-full py-2 px-4 flex items-center justify-start gap-2 text-xs font-mono text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/40 border-b border-neutral-800/40 transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 text-[#00ED64]" />
             <span>Insertar nueva fila...</span>
@@ -706,14 +749,16 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
         {data.length === 0 && !isInserting && (
           <div className="flex flex-col items-center justify-center p-8 text-center text-xs text-neutral-500 font-mono">
             <Database className="w-8 h-8 mb-2 text-neutral-700" />
-            <p>La colección está vacía.</p>
-            <button
-              onClick={handleStartInsert}
-              className="mt-3 flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs text-neutral-300"
-            >
-              <Plus className="w-3 h-3 text-[#00ED64]" />
-              <span>Insertar primer documento</span>
-            </button>
+            <p>{isReadOnly ? 'La consulta no retornó resultados.' : 'La colección está vacía.'}</p>
+            {!isReadOnly && (
+              <button
+                onClick={handleStartInsert}
+                className="mt-3 flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs text-neutral-300 cursor-pointer"
+              >
+                <Plus className="w-3 h-3 text-[#00ED64]" />
+                <span>Insertar primer documento</span>
+              </button>
+            )}
           </div>
         )}
       </div>

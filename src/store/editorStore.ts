@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { QueryResult, MongoDocument } from '../types/mongo';
 
-export type PlaygroundTab = 'table' | 'editor' | 'builder' | 'inspector' | 'doc-editor';
+export type PlaygroundTab = 'table' | 'editor' | 'examples' | 'builder' | 'inspector' | 'doc-editor';
 export type ResultViewMode = 'table' | 'json';
 
 interface EditorState {
@@ -11,6 +11,7 @@ interface EditorState {
   lastResult: QueryResult | null;
   isRunning: boolean;
   selectedDocForEdit: { collection: string; doc: MongoDocument } | null;
+  isExamplesOpen: boolean;
 
   setCode: (code: string) => void;
   setActiveTab: (tab: PlaygroundTab) => void;
@@ -18,6 +19,7 @@ interface EditorState {
   setLastResult: (result: QueryResult | null) => void;
   setIsRunning: (running: boolean) => void;
   setSelectedDocForEdit: (data: { collection: string; doc: MongoDocument } | null) => void;
+  setIsExamplesOpen: (open: boolean) => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -27,6 +29,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   lastResult: null,
   isRunning: false,
   selectedDocForEdit: null,
+  isExamplesOpen: false,
 
   setCode: (code) => set({ code }),
   setActiveTab: (activeTab) => set({ activeTab }),
@@ -34,4 +37,5 @@ export const useEditorStore = create<EditorState>((set) => ({
   setLastResult: (lastResult) => set({ lastResult }),
   setIsRunning: (isRunning) => set({ isRunning }),
   setSelectedDocForEdit: (selectedDocForEdit) => set({ selectedDocForEdit }),
+  setIsExamplesOpen: (isExamplesOpen) => set({ isExamplesOpen }),
 }));

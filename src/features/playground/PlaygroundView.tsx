@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Terminal, Table, Code2, Copy, Check, GripHorizontal } from 'lucide-react';
+import { Terminal, Table, Code2, Copy, Check, GripHorizontal, BookOpen } from 'lucide-react';
 import { useEditorStore } from '../../store/editorStore';
 import { useDbStore } from '../../store/dbStore';
 import { ResizablePanels } from '../../components/layout/ResizablePanels';
@@ -8,6 +8,7 @@ import { MongoEditor } from './MongoEditor';
 import { ResultsPanel } from './ResultsPanel';
 import { ResultsTable } from './ResultsTable';
 import { ResultsJson } from './ResultsJson';
+import { ExamplesView } from './ExamplesView';
 
 const STORAGE_EDITOR_HEIGHT_KEY = 'mongolab_playground_editor_height';
 
@@ -116,6 +117,18 @@ export const PlaygroundView: React.FC = () => {
                 <Terminal className="w-3.5 h-3.5" />
                 <span>Consola</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('examples')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
+                  activeTab === 'examples'
+                    ? 'bg-neutral-800 text-[#00ED64]'
+                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Ejemplos</span>
+              </button>
             </div>
 
             {/* Right side controls */}
@@ -166,9 +179,13 @@ export const PlaygroundView: React.FC = () => {
                     <strong className="text-neutral-300 font-normal">{selectedCollection}</strong>
                   </span>
                 </>
-              ) : (
+              ) : activeTab === 'editor' ? (
                 <span className="text-[11px] font-mono text-neutral-500 hidden sm:inline">
                   Consola interactiva e independiente
+                </span>
+              ) : (
+                <span className="text-[11px] font-mono text-neutral-500 hidden sm:inline">
+                  Catálogo de ejercicios y consultas prácticas
                 </span>
               )}
             </div>
@@ -183,6 +200,8 @@ export const PlaygroundView: React.FC = () => {
                 <ResultsJson data={activeColDocs} />
               )}
             </div>
+          ) : activeTab === 'examples' ? (
+            <ExamplesView />
           ) : (
             <div
               ref={containerRef}

@@ -12,7 +12,7 @@ export function getInitialDatabase(): MongoDatabase {
   });
 
   return {
-    name: 'mi_base_datos',
+    name: 'database',
     collections: {
       usuarios: createCollection('usuarios', usuariosSeed),
       peliculas: createCollection('peliculas', peliculasSeed),

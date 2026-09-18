@@ -24,6 +24,9 @@ export const ResultsPanel: React.FC = () => {
   }
 
   const isArrayData = Array.isArray(lastResult.data);
+  const isObjectData = !isArrayData && lastResult.data !== null && typeof lastResult.data === 'object';
+  const canShowTable = isArrayData || isObjectData;
+  const tableData = isArrayData ? lastResult.data : isObjectData ? [lastResult.data] : [];
   const docsCount = isArrayData ? lastResult.data.length : lastResult.data ? 1 : 0;
   const stats = lastResult.stats;
 
@@ -69,10 +72,10 @@ export const ResultsPanel: React.FC = () => {
             </button>
             <button
               onClick={() => setResultViewMode('table')}
-              disabled={!isArrayData}
+              disabled={!canShowTable}
               className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${
                 resultViewMode === 'table' ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-400 hover:text-neutral-200'
-              } ${!isArrayData ? 'opacity-30 cursor-not-allowed' : ''}`}
+              } ${!canShowTable ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <Table className="w-3 h-3" />
               <span>Tabla</span>
@@ -98,8 +101,12 @@ export const ResultsPanel: React.FC = () => {
             <div className="font-bold mb-1">Error de ejecución MongoDB:</div>
             <div>{lastResult.error}</div>
           </div>
-        ) : resultViewMode === 'table' && isArrayData ? (
-          <ResultsTable data={lastResult.data} />
+        ) : resultViewMode === 'table' && canShowTable ? (
+          <ResultsTable
+            data={tableData}
+            isReadOnly={true}
+            operation={lastResult.operation}
+          />
         ) : (
           <ResultsJson data={lastResult.data} />
         )}

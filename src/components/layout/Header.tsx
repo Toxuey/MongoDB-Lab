@@ -5,6 +5,7 @@ import {
   Database,
   RotateCcw,
   PanelLeft,
+  HelpCircle,
 } from 'lucide-react';
 import { GithubIcon } from '../ui/icons';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -15,7 +16,7 @@ import { confirmModal } from '../../store/modalStore';
 export const Header: React.FC = () => {
   const { theme, toggleTheme, toggleMobileSidebar } = useSettingsStore();
   const { database, resetDatabase } = useDbStore();
-  const { setCode, setLastResult, setActiveTab } = useEditorStore();
+  const { setCode, setLastResult, setActiveTab, activeTab } = useEditorStore();
 
   const handleResetDefaults = async () => {
     const confirmed = await confirmModal({
@@ -60,6 +61,21 @@ export const Header: React.FC = () => {
 
       {/* Right actions: Reset, GitHub Repo & Theme Toggle */}
       <div className="flex items-center gap-1.5 sm:gap-2">
+        {/* Botón ? con todos los ejemplos y ejercicios */}
+        <button
+          onClick={() => setActiveTab('examples')}
+          className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded border text-xs font-mono transition-all cursor-pointer active:scale-95 shadow-sm ${
+            activeTab === 'examples'
+              ? 'bg-[#00ED64] text-neutral-950 font-semibold border-[#00ED64]'
+              : 'bg-[#00ED64]/10 hover:bg-[#00ED64]/20 border-[#00ED64]/30 hover:border-[#00ED64]/60 text-[#00ED64]'
+          }`}
+          title="Ver todos los ejercicios y ejemplos prácticos (?)"
+        >
+          <HelpCircle className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline font-medium">Ejemplos</span>
+          <span className="font-bold sm:hidden">?</span>
+        </button>
+
         <a
           href="https://github.com/Toxuey/MongoDB-Lab"
           target="_blank"
