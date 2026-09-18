@@ -606,7 +606,7 @@ export const ImportNewCollectionDialog: React.FC<ImportNewCollectionDialogProps>
               setName(e.target.value);
               setError('');
             }}
-            placeholder="ej. jugadores, equipos, partidos..."
+            placeholder="ej. pedidos, ventas, facturas..."
             className="w-full px-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded font-mono text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-[#00ED64]"
             autoFocus
           />
