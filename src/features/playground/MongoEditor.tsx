@@ -28,14 +28,20 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
   };
 
   const handleExecute = async () => {
-    if (!code.trim() || isRunning) return;
+    const currentCode = editorRef.current?.getValue() ?? useEditorStore.getState().code;
+    const isCurrentlyRunning = useEditorStore.getState().isRunning;
+
+    if (!currentCode.trim() || isCurrentlyRunning) return;
+
+    // Asegurar sincronización en el store
+    setCode(currentCode);
 
     // Evitar parpadeo en consultas instantáneas locales (<150ms)
     const timer = setTimeout(() => setIsRunning(true), 150);
 
     try {
       const startTime = performance.now();
-      const result = await runQuery(code);
+      const result = await runQuery(currentCode);
       const duration = Math.max(1, Math.round(performance.now() - startTime));
 
       setLastResult(result);
@@ -43,7 +49,7 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
       if (onRunQuery) onRunQuery();
 
       addHistoryItem({
-        command: code,
+        command: currentCode,
         collection: result.collectionName || selectedCollection,
         operation: result.operation || 'query',
         success: result.success,
@@ -54,6 +60,27 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
       setIsRunning(false);
     }
   };
+
+  const handleExecuteRef = useRef(handleExecute);
+  useEffect(() => {
+    handleExecuteRef.current = handleExecute;
+  });
+
+  // Atajo global Ctrl+Enter / Cmd+Enter mientras la consola esté montada
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleExecuteRef.current();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, []);
 
   const handleBeforeMount: BeforeMount = (monaco) => {
     registerMongoLanguage(monaco);
@@ -73,9 +100,9 @@ export const MongoEditor: React.FC<MongoEditorProps> = ({ onRunQuery }) => {
       createMongoCompletionProvider(monaco, () => database, () => selectedCollection)
     );
 
-    // Shortcut: Ctrl+Enter or Cmd+Enter to execute
+    // Shortcut: Ctrl+Enter or Cmd+Enter to execute within Monaco
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      handleExecute();
+      handleExecuteRef.current();
     });
 
     return () => {
