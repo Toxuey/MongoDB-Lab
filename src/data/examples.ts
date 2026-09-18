@@ -10,7 +10,49 @@ export interface MongoExample {
 }
 
 export const MONGO_EXAMPLES: MongoExample[] = [
-  // 1. LISTAR & CONSULTAS BÁSICAS
+  // 1. GESTIÓN BÁSICA Y CREACIÓN INICIAL (PRIMEROS PASOS)
+  {
+    id: 'show-collections',
+    title: 'Listar todas las colecciones',
+    category: 'collections',
+    categoryLabel: 'Gestión de Colecciones',
+    collection: 'general',
+    code: 'show collections',
+    description: 'Muestra los nombres de todas las colecciones existentes en la base de datos actual.',
+    tags: ['show', 'collections', 'colecciones', 'listar']
+  },
+  {
+    id: 'create-collection',
+    title: 'Crear una nueva colección',
+    category: 'collections',
+    categoryLabel: 'Gestión de Colecciones',
+    collection: 'general',
+    code: 'db.createCollection("pedidos")',
+    description: 'Crea explícitamente una nueva colección vacía en la base de datos.',
+    tags: ['createCollection', 'crear', 'colecciones']
+  },
+  {
+    id: 'insert-one-user',
+    title: 'Agregar un dato a la colección',
+    category: 'insert',
+    categoryLabel: 'Insertar Datos',
+    collection: 'usuarios',
+    code: 'db.usuarios.insertOne({\n  nombre: "Mariana Silva",\n  email: "mariana.silva@example.com",\n  edad: 29,\n  ciudad: "Cartagena",\n  activo: true\n})',
+    description: 'Inserta un nuevo documento en la colección usuarios y genera automáticamente un _id único.',
+    tags: ['insertOne', 'crear', 'insertar', 'usuarios']
+  },
+  {
+    id: 'insert-many-products',
+    title: 'Agregar varios datos a la colección',
+    category: 'insert',
+    categoryLabel: 'Insertar Datos',
+    collection: 'productos',
+    code: 'db.productos.insertMany([\n  {\n    nombre: "Cámara Web 4K Pro",\n    categoria: "Accesorios",\n    precio: 320000,\n    stock: 20,\n    disponible: true\n  },\n  {\n    nombre: "Base Refrigerante Laptop",\n    categoria: "Accesorios",\n    precio: 110000,\n    stock: 35,\n    disponible: true\n  }\n])',
+    description: 'Inserta múltiples documentos en una sola operación atómica con insertMany.',
+    tags: ['insertMany', 'lote', 'productos', 'crear', 'insertar']
+  },
+
+  // 2. LISTAR & CONSULTAS BÁSICAS
   {
     id: 'find-all-users',
     title: 'Listar todos los usuarios',
@@ -82,7 +124,7 @@ export const MONGO_EXAMPLES: MongoExample[] = [
     tags: ['count', 'countDocuments', 'productos']
   },
 
-  // 2. FILTRAR Y OPERADORES
+  // 3. FILTRAR Y OPERADORES
   {
     id: 'filter-gt-age',
     title: 'Usuarios mayores o iguales a 30 años',
@@ -134,27 +176,7 @@ export const MONGO_EXAMPLES: MongoExample[] = [
     tags: ['rango', 'paginacion', 'skip', 'sort', 'peliculas']
   },
 
-  // 3. INSERTAR DATOS
-  {
-    id: 'insert-one-user',
-    title: 'Insertar un nuevo usuario',
-    category: 'insert',
-    categoryLabel: 'Insertar Datos',
-    collection: 'usuarios',
-    code: 'db.usuarios.insertOne({\n  nombre: "Mariana Silva",\n  email: "mariana.silva@example.com",\n  edad: 29,\n  ciudad: "Cartagena",\n  activo: true\n})',
-    description: 'Inserta un nuevo documento en la colección usuarios y genera automáticamente un _id único.',
-    tags: ['insertOne', 'crear', 'insertar', 'usuarios']
-  },
-  {
-    id: 'insert-many-products',
-    title: 'Insertar varios productos a la vez (lote)',
-    category: 'insert',
-    categoryLabel: 'Insertar Datos',
-    collection: 'productos',
-    code: 'db.productos.insertMany([\n  {\n    nombre: "Cámara Web 4K Pro",\n    categoria: "Accesorios",\n    precio: 320000,\n    stock: 20,\n    disponible: true\n  },\n  {\n    nombre: "Base Refrigerante Laptop",\n    categoria: "Accesorios",\n    precio: 110000,\n    stock: 35,\n    disponible: true\n  }\n])',
-    description: 'Inserta múltiples documentos en una sola operación atómica con insertMany.',
-    tags: ['insertMany', 'lote', 'productos', 'crear']
-  },
+  // 4. MÁS OPERACIONES DE INSERCIÓN
   {
     id: 'insert-one-movie',
     title: 'Insertar una nueva película',
@@ -166,7 +188,7 @@ export const MONGO_EXAMPLES: MongoExample[] = [
     tags: ['insertOne', 'peliculas', 'nolan']
   },
 
-  // 4. ACTUALIZAR DATOS
+  // 5. ACTUALIZAR DATOS
   {
     id: 'update-one-set',
     title: 'Actualizar campos con $set',
@@ -208,7 +230,7 @@ export const MONGO_EXAMPLES: MongoExample[] = [
     tags: ['replaceOne', 'reemplazar', 'usuarios']
   },
 
-  // 5. BORRAR / ELIMINAR
+  // 6. BORRAR / ELIMINAR
   {
     id: 'delete-one-user',
     title: 'Eliminar un usuario por condición',
@@ -230,7 +252,7 @@ export const MONGO_EXAMPLES: MongoExample[] = [
     tags: ['deleteMany', 'eliminar', 'borrar', 'productos']
   },
 
-  // 6. AGREGACIONES Y MÉTRICAS
+  // 7. AGREGACIONES Y MÉTRICAS
   {
     id: 'agg-group-category',
     title: 'Agrupar productos por categoría con promedio y total',
@@ -262,27 +284,7 @@ export const MONGO_EXAMPLES: MongoExample[] = [
     tags: ['aggregate', 'global', 'inventario', 'total']
   },
 
-  // 7. GESTIÓN DE COLECCIONES Y BASE DE DATOS
-  {
-    id: 'show-collections',
-    title: 'Listar todas las colecciones',
-    category: 'collections',
-    categoryLabel: 'Gestión de Colecciones',
-    collection: 'general',
-    code: 'show collections',
-    description: 'Muestra los nombres de todas las colecciones existentes en la base de datos actual.',
-    tags: ['show', 'collections', 'colecciones']
-  },
-  {
-    id: 'create-collection',
-    title: 'Crear una nueva colección',
-    category: 'collections',
-    categoryLabel: 'Gestión de Colecciones',
-    collection: 'general',
-    code: 'db.createCollection("pedidos")',
-    description: 'Crea explícitamente una nueva colección vacía en la base de datos.',
-    tags: ['createCollection', 'crear', 'colecciones']
-  },
+  // 8. OTRAS OPERACIONES DE COLECCIONES
   {
     id: 'collection-stats',
     title: 'Estadísticas e índices de una colección',

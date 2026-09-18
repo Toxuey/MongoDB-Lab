@@ -28,17 +28,10 @@
 - [Guía de Uso: ¿Cómo usar la aplicación?](#guía-de-uso-cómo-usar-la-aplicación)
   - [1. Explorar y Editar Colecciones](#1-explorar-y-editar-colecciones)
   - [2. Usar la Consola Interactiva](#2-usar-la-consola-interactiva)
-  - [3. Redimensionar Consola y Resultados](#3-redimensionar-consola-y-resultados)
-  - [4. Crear Nuevas Colecciones e Importar Datos](#4-crear-nuevas-colecciones-e-importar-datos)
-  - [5. Soporte Móvil y Tablets](#5-soporte-móvil-y-tablets)
-- [Ejemplos Prácticos de Consultas](#ejemplos-prácticos-de-consultas)
-  - [Creación y Poblado de una Colección de Ejemplo](#creación-y-poblado-de-una-colección-de-ejemplo)
-  - [Gestión de Colecciones mediante Código](#gestión-de-colecciones-mediante-código)
-  - [Consultas Básicas y Filtros](#consultas-básicas-y-filtros)
-  - [Operadores Lógicos y Búsqueda por Expresiones Regulares](#operadores-lógicos-y-búsqueda-por-expresiones-regulares)
-  - [Ordenamiento, Proyección y Paginación](#ordenamiento-proyección-y-paginación)
-  - [Agregaciones (Aggregation Pipeline)](#agregaciones-aggregation-pipeline)
-  - [Inserción, Actualización y Eliminación](#inserción-actualización-y-eliminación)
+  - [3. Catálogo Interactivo de Ejemplos](#3-catálogo-interactivo-de-ejemplos)
+  - [4. Redimensionar Consola y Resultados](#4-redimensionar-consola-y-resultados)
+  - [5. Crear Nuevas Colecciones e Importar Datos](#5-crear-nuevas-colecciones-e-importar-datos)
+  - [6. Soporte Móvil y Tablets](#6-soporte-móvil-y-tablets)
 - [Requisitos e Instalación](#requisitos-e-instalación)
 - [Arquitectura y Tecnologías](#arquitectura-y-tecnologías)
 - [Licencia](#licencia)
@@ -61,6 +54,7 @@ Permite escribir comandos reales de MongoDB en una consola profesional (tipo *mo
   - Sugerencia de métodos al escribir `db.`.
   - Sugerencia automática de los campos reales de los documentos al abrir un filtro `{`.
   - Atajo rápido de ejecución: `Ctrl + Enter` (o `Cmd + Enter`).
+- **Pestaña interactiva de Ejemplos:** Catálogo integrado con consultas listas para usar, clasificadas por categorías (Colecciones, Consultas, Filtros, Inserción, Actualización, Eliminación y Agregaciones), con resaltado de sintaxis y botón para cargar directamente a la consola.
 - **Separador de paneles dinámico y ajustable:** Arrastra la barra entre la consola y los resultados para darles el tamaño que prefieras (con doble clic para restablecer al 40%/60%).
 - **Visor Dual de Datos:** Alterna al instante entre **Tabla interactiva** (con ordenamiento por columnas, buscador en tiempo real y paginación) y **JSON formateado**.
 - **Edición e Inserción estilo Supabase:** Agrega filas con el botón `+ Insertar fila` o haz doble clic sobre cualquier celda para editarla en tiempo real.
@@ -101,166 +95,25 @@ La base de datos inicial incluye tres colecciones preparadas para pruebas inmedi
 3. Presiona `Ctrl + Enter` (o pulsa el botón verde **Ejecutar**).
 4. El panel inferior te mostrará el número de resultados, el tiempo de ejecución en milisegundos y los documentos coincidentes.
 
-### 3. Redimensionar Consola y Resultados
+### 3. Catálogo Interactivo de Ejemplos
+La aplicación cuenta con una pestaña dedicada llamada **Ejemplos** accesible desde la barra superior junto a la Consola:
+- **Categorías organizadas:** Filtra consultas por tipo de operación: Colecciones, Consultas, Filtros, Inserción de datos, Actualización, Eliminación y Agregaciones.
+- **Filtro por colección y buscador en tiempo real:** Encuentra ejemplos específicos para `usuarios`, `peliculas`, `productos` o utiliza términos de búsqueda.
+- **Probar en consola:** Cada tarjeta incluye la acción de probar en consola, la cual traslada el comando al editor Monaco y cambia la vista automáticamente para su ejecución.
+- **Copia rápida:** Copia el comando al portapapeles sin necesidad de seleccionar texto manualmente.
+
+### 4. Redimensionar Consola y Resultados
 - **Arrastrar libremente:** Pasa el ratón sobre la barra divisoria horizontal (se ilumina en verde con un icono de agarre central) y arrástrala hacia arriba o abajo para darle el tamaño que necesites a la consola o a la tabla de resultados.
 - **Restablecer con doble clic:** Si deseas volver a una distribución equilibrada, haz **doble clic** sobre la barra y se ajustará automáticamente al 40% de consola y 60% de resultados.
 - **Persistencia:** La aplicación recuerda tu tamaño preferido incluso si recargas la página.
 
-### 4. Crear Nuevas Colecciones e Importar Datos
+### 5. Crear Nuevas Colecciones e Importar Datos
 - **Crear desde cero:** Haz clic en el botón `+` en la cabecera de la barra lateral izquierda. Asigna un nombre, selecciona el tipo de `_id`, agrega columnas y haz clic en `Crear Colección`.
 - **Importar un archivo JSON:** Haz clic en el enlace `Importar` en el pie de la barra lateral o en el botón `Subir JSON` dentro de cualquier tabla para cargar datos existentes.
 
-### 5. Soporte Móvil y Tablets
+### 6. Soporte Móvil y Tablets
 - Al usar la aplicación en smartphones o tablets en modo vertical, verás un botón de menú lateral en el encabezado. Tócalo para desplegar el explorador de colecciones.
 - Al seleccionar una colección, el cajón se cerrará automáticamente para mostrarte los datos sin distracciones.
-
----
-
-## Ejemplos Prácticos de Consultas
-
-Puedes copiar y pegar estos ejemplos directamente en la **Consola**:
-
-### Creación y Poblado de una Colección de Ejemplo
-
-Puedes crear una colección nueva desde cero, poblarla con múltiples registros y consultarla de inmediato:
-
-```javascript
-// Paso 1: Crear la colección explícitamente en la base de datos
-db.createCollection("clientes")
-
-// Paso 2: Insertar múltiples documentos de prueba
-db.clientes.insertMany([
-  {
-    nombre: "Mariana Silva",
-    email: "mariana.silva@example.com",
-    ciudad: "Bogotá",
-    comprasRealizadas: 5,
-    activo: true
-  },
-  {
-    nombre: "Esteban Morales",
-    email: "esteban.morales@example.com",
-    ciudad: "Medellín",
-    comprasRealizadas: 12,
-    activo: true
-  },
-  {
-    nombre: "Camilo Vega",
-    email: "camilo.vega@example.com",
-    ciudad: "Cali",
-    comprasRealizadas: 1,
-    activo: false
-  }
-])
-
-// Paso 3: Consultar los clientes activos con más de 3 compras
-db.clientes.find({ activo: true, comprasRealizadas: { $gt: 3 } })
-
-// Paso 4: Verificar que la colección aparece en el listado
-show collections
-```
-
-Al ejecutar estos comandos, la colección `clientes` aparecerá instantáneamente en la barra lateral izquierda, permitiéndote también explorarla o editarla en modo tabla visual desde la pestaña **Colección**.
-
-### Gestión de Colecciones mediante Código
-```javascript
-// Crear una colección explícitamente desde la consola
-db.createCollection("articulos")
-
-// Listar todas las colecciones existentes en la base de datos
-show collections
-// o también:
-db.getCollectionNames()
-
-// Creación implícita: al insertar en una colección nueva, se crea automáticamente
-db.inventario.insertOne({
-  codigo: "INV-001",
-  articulo: "Teclado Mecánico",
-  cantidad: 25
-})
-
-// Inspeccionar métricas y estadísticas de una colección
-db.usuarios.stats()
-
-// Eliminar una colección mediante código
-db.articulos.drop()
-```
-
-### Consultas Básicas y Filtros
-```javascript
-// Buscar usuarios activos
-db.usuarios.find({ activo: true })
-
-// Buscar películas estrenadas a partir del año 2000
-db.peliculas.find({ anio: { $gte: 2000 } })
-
-// Buscar productos con precio mayor a 100,000
-db.productos.find({ precio: { $gt: 100000 } })
-```
-
-### Operadores Lógicos y Búsqueda por Expresiones Regulares
-```javascript
-// Películas de Ciencia Ficción o con calificación igual o superior a 9.0
-db.peliculas.find({
-  $or: [
-    { genero: "Ciencia Ficción" },
-    { calificacion: { $gte: 9.0 } }
-  ]
-})
-
-// Usuarios con correo de example.com (búsqueda insensible a mayúsculas)
-db.usuarios.find({ email: { $regex: "@example\\.com$", $options: "i" } })
-```
-
-### Ordenamiento, Proyección y Paginación
-```javascript
-// Los 3 productos con mayor stock, mostrando solo nombre, precio y stock
-db.productos.find({}, { nombre: 1, precio: 1, stock: 1, _id: 0 })
-  .sort({ stock: -1 })
-  .limit(3)
-
-// Películas ordenadas por calificación de mayor a menor con paginación
-db.peliculas.find()
-  .sort({ calificacion: -1 })
-  .skip(2)
-  .limit(3)
-```
-
-### Agregaciones (Aggregation Pipeline)
-```javascript
-// Agrupar productos por categoría, calculando la cantidad y el precio promedio
-db.productos.aggregate([
-  {
-    $group: {
-      _id: "$categoria",
-      totalProductos: { $sum: 1 },
-      precioPromedio: { $avg: "$precio" }
-    }
-  },
-  { $sort: { totalProductos: -1 } }
-])
-```
-
-### Inserción, Actualización y Eliminación
-```javascript
-// Insertar un nuevo usuario
-db.usuarios.insertOne({
-  nombre: "Laura Medina",
-  email: "laura.medina@example.com",
-  edad: 29,
-  ciudad: "Cartagena",
-  activo: true
-})
-
-// Incrementar el stock y actualizar el precio de un producto
-db.productos.updateOne(
-  { nombre: "Mouse Inalámbrico Silent" },
-  { $inc: { stock: 10 }, $set: { precio: 90000 } }
-)
-
-// Eliminar películas no disponibles
-db.peliculas.deleteMany({ disponible: false })
-```
 
 ---
 
