@@ -23,7 +23,7 @@ interface EditorState {
 export const useEditorStore = create<EditorState>((set) => ({
   code: '',
   activeTab: 'table',
-  resultViewMode: 'table',
+  resultViewMode: 'json',
   lastResult: null,
   isRunning: false,
   selectedDocForEdit: null,
