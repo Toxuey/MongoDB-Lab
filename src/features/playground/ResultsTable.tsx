@@ -12,7 +12,6 @@ import {
   Edit2,
   Upload,
 } from 'lucide-react';
-import { MongoDocument } from '../../types/mongo';
 import { useDbStore } from '../../store/dbStore';
 import { useEditorStore } from '../../store/editorStore';
 import { confirmModal, alertModal } from '../../store/modalStore';
