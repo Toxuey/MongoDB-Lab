@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es" class="dark" style="background-color: #0a0a0a; color: #ededed;">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/mongodb-lab.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MongoDB Lab — Entorno Interactivo de Aprendizaje</title>
+    <meta name="description" content="Laboratorio profesional 100% offline para aprender MongoDB desde cero con simulador BSON, Aggregation Pipeline, consola Monaco y desafíos prácticos." />
+    <script>
+      (function() {
+        try {
+          const saved = localStorage.getItem('mongolab_theme');
+          if (saved === 'light') {
+            document.documentElement.classList.remove('dark');
+          } else {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('mongolab_theme', 'dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-neutral-950 text-neutral-100" style="background-color: #0a0a0a; color: #ededed; margin: 0;">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
