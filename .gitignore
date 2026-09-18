@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Archivos de datos / Datasets
+Match.json
+match.json
+Players.json
+players.json
+Teams.json
+teams.json
+*.data.json
